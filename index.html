@@ -164,7 +164,49 @@
             opacity: 1;
             visibility: visible;
         }
-
+    .charts-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        /* ลบ max-width เพื่อให้รับขนาดลูก */
+    }
+    .chart-container {
+        /* กำหนดขนาดกราฟที่ต้องการ หรือให้ auto */
+        width: fit-content; /* ให้ container ขยายเท่ากราฟ */
+        min-width: 320px;   /* กันเล็กเกินไป */
+        /* หรือจะกำหนด width: 600px; ถ้าต้องการขนาดแน่นอน */
+        height: 360px;
+        margin: 0 auto 20px;
+        position: relative;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        overflow: auto;
+        padding: 12px 18px;
+    }
+    .chart-container canvas {
+        /* ถ้าอยากได้ขนาดแน่นอน */
+        width: 600px !important;  /* หรือปรับตามต้องการ */
+        height: 320px !important;
+        display: block;
+        max-width: unset;
+        max-height: unset;
+    }
+    @media (max-width: 768px) {
+        .charts-stack {
+            gap: 18px;
+        }
+        .chart-container {
+            width: 100vw;
+            min-width: 0;
+            height: 220px;
+            padding: 8px;
+        }
+        .chart-container canvas {
+            width: 100% !important;
+            height: 180px !important;
+        }
+    }
         /* Cards */
         .card {
             background: linear-gradient(135deg, rgba(255, 240, 245, 0.9) 0%, rgba(240, 248, 255, 0.9) 50%, rgba(245, 255, 240, 0.9) 100%);
