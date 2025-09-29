@@ -236,7 +236,20 @@
             align-items: center;
             gap: 12px;
         }
-
+.width-fixed {
+    width: 600px;          /* หรือใช้ขนาดที่ใช้กับ .chart-container */
+    min-width: 320px;      /* กันเล็กเกินไป */
+    margin: 0 auto;        /* จัดกึ่งกลาง */
+    box-sizing: border-box;
+}
+@media (max-width: 768px) {
+    .width-fixed {
+        width: 100vw;
+        min-width: 0;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
         /* Form Styles */
         .form-grid {
             display: grid;
@@ -2328,9 +2341,9 @@
                             </svg>
                             สถิติเพศ
                         </div>
-                        <div class="chart-container-small chart-container-mobile">
-                            <canvas id="genderChart"></canvas>
-                        </div>
+<div class="chart-container width-fixed">
+    <canvas id="genderChart"></canvas>
+</div>
                     </div>
 
                     <!-- AN Type Distribution -->
