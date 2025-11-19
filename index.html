@@ -2155,19 +2155,24 @@
                 </div>
 
                 <div class="search-filter">
-                    <input type="text" class="form-input search-input" id="searchInput" placeholder="ค้นหา AN, HN, หรือชื่อแพทย์..." onkeyup="filterTable()">
-                    <select class="form-select" id="wardFilter" onchange="filterTable()">
-                        <option value="">ทุกหอผู้ป่วย</option>
-                    </select>
-                    <select class="form-select" id="monthFilter" onchange="filterTable()">
-                        <option value="">เลือกเดือน</option>
-                    </select>
-                    <select class="form-select" id="yearFilter" onchange="filterTable()">
-                        <option value="">เลือกปี</option>
-                    </select>
-                    <input type="date" class="form-input" id="dateFilter" onchange="filterTable()">
-                </div>
+    <input type="text" class="form-input search-input" id="searchInput"
+           placeholder="ค้นหา AN, HN, หรือชื่อแพทย์..."
+           onkeyup="filterPatientData()">
 
+    <select class="form-select" id="wardFilter" onchange="filterPatientData()">
+        <option value="">ทุกหอผู้ป่วย</option>
+    </select>
+
+    <select class="form-select" id="monthFilter" onchange="filterPatientData()">
+        <option value="">ทุกเดือน</option>
+    </select>
+
+    <select class="form-select" id="yearFilter" onchange="filterPatientData()">
+        <option value="">ทุกปี</option>
+    </select>
+
+    <input type="date" class="form-input" id="dateFilter" onchange="filterPatientData()">
+</div>
                 <div class="table-container">
                     <table class="table">
                         <thead>
