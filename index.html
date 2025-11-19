@@ -2584,6 +2584,68 @@
                 loadDashboardData();
             }
         }
+function filterPatientData() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const ward = document.getElementById("wardFilter").value;
+    const month = document.getElementById("monthFilter").value;
+    const year = document.getElementById("yearFilter").value;
+    const date = document.getElementById("dateFilter").value;
+
+    filteredData = patientData.filter(p => {
+        // Search AN, HN, Surgeon
+        const matchesSearch = !search || 
+            (p.AN && p.AN.toLowerCase().includes(search)) ||
+            (p.HN && p.HN.toLowerCase().includes(search)) ||
+            (p.Surgeon && p.Surgeon.toLowerCase().includes(search));
+
+        // Filter ward
+        const matchesWard = !ward || p['Pre ward'] === ward;
+
+        // Filter month/year
+        let matchesMonth = true;
+        let matchesYear = true;
+        let matchesDate = true;
+
+        if (p.Date) {
+            const d = new Date(p.Date);
+            matchesMonth = !month || (d.getMonth() + 1) === parseInt(month);
+            matchesYear = !year || d.getFullYear() === parseInt(year);
+            matchesDate = !date || (new Date(date).toDateString() === d.toDateString());
+        }
+
+        return matchesSearch && matchesWard && matchesMonth && matchesYear && matchesDate;
+    });
+
+    renderPatientTable(filteredData);
+}
+function renderPatientTable(data) {
+    const tbody = document.getElementById("patientTableBody");
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px;">
+                    ไม่มีข้อมูลผู้ป่วย
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = data.map(p => `
+        <tr>
+            <td>${p.Date || ''}</td>
+            <td>${p.AN || ''}</td>
+            <td>${p.HN || ''}</td>
+            <td>${p.Age || ''}</td>
+            <td>${p.Sex || ''}</td>
+            <td>${p.Operation || ''}</td>
+            <td>${p.Surgeon || ''}</td>
+            <td>
+                <button onclick="viewPatientDetail('${p.AN}')">รายละเอียด</button>
+            </td>
+        </tr>
+    `).join('');
+}
 
         // Show toast notification
         function showToast(message, type = 'success') {
