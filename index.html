@@ -2156,16 +2156,16 @@
 
                 <div class="search-filter">
     <input type="text" class="form-input search-input" id="searchInput" placeholder="ค้นหา AN, HN, หรือชื่อแพทย์..." onkeyup="loadPatientData()">
-    <select class="form-select" id="wardFilter" onchange="loadPatientData()">
+    <select class="form-select" id="wardFilter" onchange="filterPatientData()">
         <option value="">ทุกหอผู้ป่วย</option>
     </select>
-    <select class="form-select" id="monthFilter" onchange="loadPatientData()">
+    <select class="form-select" id="monthFilter" onchange="filterPatientData()">
         <option value="">ทุกเดือน</option>
     </select>
-    <select class="form-select" id="yearFilter" onchange="loadPatientData()">
+    <select class="form-select" id="yearFilter" onchange="filterPatientData()">
         <option value="">ทุกปี</option>
     </select>
-    <input type="date" class="form-input" id="dateFilter" onchange="loadPatientData()">
+    <input type="date" class="form-input" id="dateFilter" onchange="filterPatientData()">
 </div>
 
                 <div class="table-container">
@@ -2512,6 +2512,8 @@
         let filteredDashboardData = [];
         let charts = {};
         let allPatients = []; // เก็บข้อมูลผู้ป่วยทั้งหมด
+    allPatients = result.data || [];
+filteredData = [...allPatients];
 
 async function loadPatientData() {
     const search = document.getElementById('searchInput').value.toLowerCase();
@@ -2853,7 +2855,7 @@ function renderPatientTable(data) {
                 const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
                 const currentYear = String(currentDate.getFullYear());
                 
-                const response = await fetch(`${SCRIPT_URL}?action=read&month=${currentMonth}&year=${currentYear}`);
+                const response = await fetch(`${SCRIPT_URL}?action=readAll`);
                 const result = await response.json();
                 
                 if (result.success) {
