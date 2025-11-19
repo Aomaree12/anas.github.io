@@ -2511,6 +2511,7 @@
         let patientData = [];
         let filteredData = [];
         let editingRowId = null;
+        let allPatients = [];
         
         // Dashboard variables
         let dashboardData = [];
@@ -2559,9 +2560,6 @@
             overlay.classList.remove('show');
             container.classList.remove('sidebar-open');
         }
-            let allPatients = [];
-            let filteredData = [];
-
         // Show section
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(section => {
