@@ -2755,7 +2755,34 @@
                     patientData = result.data || [];
                     filteredData = [...patientData];
                     
-                    // แก้ไขฟังก์ชันนี้ใหม่ทั้งหมด
+                    // Update month/year filter options and set current values
+                    updateDateFilters();
+                    
+                    // Set current month/year as selected
+                    const monthFilter = document.getElementById('monthFilter');
+                    const yearFilter = document.getElementById('yearFilter');
+                    if (monthFilter) monthFilter.value = currentMonth;
+                    if (yearFilter) yearFilter.value = currentYear;
+                    
+                    renderTable();
+                } else {
+                    throw new Error(result.error || 'ไม่สามารถโหลดข้อมูลได้');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px; color: #C53030;">
+                                เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+// แก้ไขฟังก์ชันนี้ใหม่ทั้งหมด
 function updateDateFilters() {
     const monthFilter = document.getElementById('monthFilter');
     const yearFilter = document.getElementById('yearFilter');
@@ -2807,72 +2834,6 @@ function updateDateFilters() {
         // yearFilter.value = String(currentYear);
     }
 }
-
-        // Update date filter options based on actual data
-        function updateDateFilters() {
-            const monthFilter = document.getElementById('monthFilter');
-            const yearFilter = document.getElementById('yearFilter');
-            
-            if (!monthFilter || !yearFilter) return;
-            
-            // Get current month and year
-            const currentDate = new Date();
-            const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-            const currentYear = String(currentDate.getFullYear());
-            
-            // Get unique months and years from data
-            const months = new Set([currentMonth]); // Always include current month
-            const years = new Set([currentYear]); // Always include current year
-            
-            patientData.forEach(patient => {
-                if (patient.Date) {
-                    try {
-                        const date = new Date(patient.Date);
-                        if (!isNaN(date.getTime())) {
-                            months.add(String(date.getMonth() + 1).padStart(2, '0'));
-                            years.add(String(date.getFullYear()));
-                        }
-                    } catch (error) {
-                        // Skip invalid dates
-                    }
-                }
-            });
-            
-            // Update month filter with current month first
-            const monthNames = [
-                '', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-            ];
-            
-            monthFilter.innerHTML = '<option value="">เลือกเดือน</option>';
-            
-            // Add current month first
-            const currentMonthNum = parseInt(currentMonth);
-            monthFilter.innerHTML += `<option value="${currentMonth}">${monthNames[currentMonthNum]} (ปัจจุบัน)</option>`;
-            
-            // Add other months
-            Array.from(months).sort().forEach(month => {
-                if (month !== currentMonth) {
-                    const monthNum = parseInt(month);
-                    monthFilter.innerHTML += `<option value="${month}">${monthNames[monthNum]}</option>`;
-                }
-            });
-            
-            // Update year filter with current year first (convert to Buddhist year for display)
-            yearFilter.innerHTML = '<option value="">เลือกปี</option>';
-            
-            // Add current year first
-            const currentBuddhistYear = parseInt(currentYear) + 543;
-            yearFilter.innerHTML += `<option value="${currentYear}">${currentBuddhistYear} (ปัจจุบัน)</option>`;
-            
-            // Add other years
-            Array.from(years).sort((a, b) => b - a).forEach(year => {
-                if (year !== currentYear) {
-                    const buddhistYear = parseInt(year) + 543;
-                    yearFilter.innerHTML += `<option value="${year}">${buddhistYear}</option>`;
-                }
-            });
-        }
 
         // Format date for display
         function formatDate(dateString) {
@@ -2981,45 +2942,35 @@ function updateDateFilters() {
                 let matchesMonth = true;
                 let matchesYear = true;
 
-// ใน filterTable ช่วงที่เช็ค Date
-if (monthValue || yearValue) {
-    if (patient.Date) {
-        try {
-            let patientMonth, patientYear;
+                if (monthValue || yearValue) {
+                    if (patient.Date) {
+                        try {
+                            const patientDate = new Date(patient.Date);
+                            if (!isNaN(patientDate.getTime())) {
+                                const patientMonth = String(patientDate.getMonth() + 1).padStart(2, '0');
+                                const patientYear = String(patientDate.getFullYear());
 
-            // เช็คว่าวันที่มาแบบไหน?
-            if (patient.Date.includes('/')) {
-                // กรณีมาแบบ DD/MM/YYYY (เช่น 20/11/2024)
-                const parts = patient.Date.split('/');
-                // parts[0]=วัน, parts[1]=เดือน, parts[2]=ปี
-                patientMonth = parts[1]; 
-                patientYear = parts[2];
-            } else {
-                // กรณีมาแบบ YYYY-MM-DD หรือมาตรฐานอื่น
-                const d = new Date(patient.Date);
-                if (!isNaN(d.getTime())) {
-                    patientMonth = String(d.getMonth() + 1).padStart(2, '0');
-                    patientYear = String(d.getFullYear());
+                                if (monthValue) {
+                                    matchesMonth = patientMonth === monthValue;
+                                }
+                                if (yearValue) {
+                                    matchesYear = patientYear === yearValue;
+                                }
+                            } else {
+                                matchesMonth = false;
+                                matchesYear = false;
+                            }
+                        } catch (error) {
+                            // Skip invalid dates
+                            matchesMonth = false;
+                            matchesYear = false;
+                        }
+                    } else {
+                        // No date data - exclude from filtered results when date filters are active
+                        matchesMonth = false;
+                        matchesYear = false;
+                    }
                 }
-            }
-
-            if (patientMonth && patientYear) {
-                 if (monthValue) matchesMonth = patientMonth === monthValue;
-                 if (yearValue) matchesYear = patientYear === yearValue;
-            } else {
-                matchesMonth = false;
-                matchesYear = false;
-            }
-
-        } catch (error) {
-            matchesMonth = false;
-            matchesYear = false;
-        }
-    } else {
-        matchesMonth = false;
-        matchesYear = false;
-    }
-}
 
                 return matchesSearch && matchesWard && matchesDate && matchesMonth && matchesYear;
             });
@@ -4408,7 +4359,66 @@ if (monthValue || yearValue) {
                 `;
             }).join('');
         }
+        // ฟังก์ชันสำหรับสร้างตัวเลือก Dropdown ตามข้อมูลจริงที่มี
+function populateFiltersFromData(data) {
+    const yearSelect = document.getElementById('yearFilter');
+    const monthSelect = document.getElementById('monthFilter');
+    
+    // --- 1. สร้างตัวเลือกเดือน (Fixed 12 เดือน) ---
+    const thaiMonths = [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+    
+    // เช็คว่าสร้างไปหรือยัง ถ้ายังให้สร้างใหม่
+    if (monthSelect.options.length <= 1) {
+        monthSelect.innerHTML = '<option value="">เลือกเดือน</option>';
+        thaiMonths.forEach((month, index) => {
+            let option = document.createElement('option');
+            option.value = String(index + 1).padStart(2, '0'); // 01, 02...
+            option.textContent = month;
+            monthSelect.appendChild(option);
+        });
+    }
 
+    // --- 2. สร้างตัวเลือกปี (Dynamic ตามข้อมูลจริง) ---
+    const yearsSet = new Set();
+
+    // วนลูปเก็บปีจากข้อมูล (column Date)
+    data.forEach(patient => {
+        if (patient.Date) { // ตรวจสอบว่ามีข้อมูลวันที่
+            let year = "";
+            // กรณีวันที่มาเป็น YYYY-MM-DD (จาก AppSheet/Database)
+            if (patient.Date.includes('-')) {
+                year = patient.Date.split('-')[0];
+            } 
+            // กรณีวันที่มาเป็น DD/MM/YYYY (Format ไทย)
+            else if (patient.Date.includes('/')) {
+                year = patient.Date.split('/')[2];
+            }
+            
+            // ถ้าได้ปีมา และเป็นตัวเลข 4 หลัก
+            if (year && year.length === 4) {
+                yearsSet.add(year);
+            }
+        }
+    });
+
+    // แปลงเป็น Array แล้วเรียงปีจากมากไปน้อย (ล่าสุดขึ้นก่อน)
+    const sortedYears = Array.from(yearsSet).sort().reverse();
+
+    // ล้างตัวเลือกเก่า
+    yearSelect.innerHTML = '<option value="">เลือกปี</option>';
+
+    // สร้างตัวเลือกใหม่
+    sortedYears.forEach(year => {
+        let option = document.createElement('option');
+        option.value = year;
+        // แปลง ค.ศ. -> พ.ศ. ให้ดูง่าย
+        option.textContent = `${year} (พ.ศ. ${parseInt(year) + 543})`; 
+        yearSelect.appendChild(option);
+    });
+}
         function renderOperationTrendChart() {
             const ctx = document.getElementById('operationTrendChart');
             if (!ctx) return;
