@@ -2559,6 +2559,8 @@
             overlay.classList.remove('show');
             container.classList.remove('sidebar-open');
         }
+            let allPatients = [];
+            let filteredData = [];
 
         // Show section
         function showSection(sectionId) {
@@ -2757,8 +2759,8 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    patientData = result.data || [];
-                    filteredData = [...patientData];
+                    allPatients = result.data || [];
+                    filteredData = [...allPatients];
                     
                     // Update month/year filter options and set current values
                     updateDateFilters();
